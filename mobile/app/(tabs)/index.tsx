@@ -13,23 +13,39 @@ import {
   Animated,
   RefreshControl,
 } from "react-native";
-// Removed LinearGradient import - using regular View instead
 
+// Get device dimensions for responsive design
 const { width, height } = Dimensions.get("window");
 
+// Define TypeScript interfaces for better type safety
+interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
+  price: string;
+  attendees: number;
+  image: string;
+  isPopular: boolean;
+  isFree: boolean;
+}
+
 export default function HomeScreen() {
-  const [events, setEvents] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [isLoading, setIsLoading] = useState(false);
+  // State Management - All app data and UI states
+  const [events, setEvents] = useState<Event[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Categories for filtering
-  const categories = ["All", "Tech", "Music", "Business", "Sports", "Arts"];
+  // Categories for filtering events
+  const categories: string[] = ["All", "Tech", "Music", "Business", "Sports", "Arts"];
 
-  // Enhanced events data with more properties
-  const initialEvents = [
+  // Static events data - In real app, this would come from API
+  const initialEvents: Event[] = [
     {
       id: "1",
       title: "AI & Machine Learning Summit",
@@ -52,8 +68,7 @@ export default function HomeScreen() {
       category: "Music",
       price: "Free",
       attendees: 500,
-      image:
-        "https://via.placeholder.com/300x150/EC4899/FFFFFF?text=Music+Fest",
+      image: "https://via.placeholder.com/300x150/EC4899/FFFFFF?text=Music+Fest",
       isPopular: true,
       isFree: true,
     },
@@ -66,8 +81,7 @@ export default function HomeScreen() {
       category: "Business",
       price: "₹1,000",
       attendees: 200,
-      image:
-        "https://via.placeholder.com/300x150/10B981/FFFFFF?text=Startup+Pitch",
+      image: "https://via.placeholder.com/300x150/10B981/FFFFFF?text=Startup+Pitch",
       isPopular: false,
       isFree: false,
     },
@@ -80,16 +94,16 @@ export default function HomeScreen() {
       category: "Arts",
       price: "₹800",
       attendees: 80,
-      image:
-        "https://via.placeholder.com/300x150/F59E0B/FFFFFF?text=Art+Workshop",
+      image: "https://via.placeholder.com/300x150/F59E0B/FFFFFF?text=Art+Workshop",
       isPopular: false,
       isFree: false,
     },
   ];
 
+  // Component Lifecycle - Initialize data and animations on mount
   useEffect(() => {
     loadEvents();
-    // Fade in animation
+    // Fade in animation for smooth UI entrance
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,
@@ -97,23 +111,25 @@ export default function HomeScreen() {
     }).start();
   }, []);
 
-  const loadEvents = async () => {
+  // Data Loading Function - Simulates API call with loading state
+  const loadEvents = async (): Promise<void> => {
     setIsLoading(true);
-    // Simulate API call
+    // Simulate network delay
     setTimeout(() => {
       setEvents(initialEvents);
       setIsLoading(false);
     }, 1000);
   };
 
-  const onRefresh = async () => {
+  // Pull-to-refresh handler
+  const onRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await loadEvents();
     setRefreshing(false);
   };
 
-  // Filter events based on search and category
-  const filteredEvents = events.filter((event) => {
+  // Data Filtering Logic - Filter events based on search query and category
+  const filteredEvents = events.filter((event: Event) => {
     const matchesSearch =
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -122,7 +138,8 @@ export default function HomeScreen() {
     return matchesSearch && matchesCategory;
   });
 
-  const renderEventCard = ({ item, index }) => (
+  // Event Card Renderer - Renders individual event item with animations
+  const renderEventCard = ({ item, index }: { item: Event; index: number }) => (
     <Animated.View
       style={[
         styles.eventCard,
@@ -144,14 +161,16 @@ export default function HomeScreen() {
         activeOpacity={0.8}
         onPress={() => handleEventPress(item)}
       >
-        {/* Event Image */}
+        {/* Event Image Container with badges */}
         <View style={styles.imageContainer}>
           <Image source={{ uri: item.image }} style={styles.eventImage} />
+          {/* Popular badge overlay */}
           {item.isPopular && (
             <View style={styles.popularBadge}>
               <Text style={styles.popularText}>🔥 Popular</Text>
             </View>
           )}
+          {/* Free event badge overlay */}
           {item.isFree && (
             <View style={styles.freeBadge}>
               <Text style={styles.freeText}>FREE</Text>
@@ -159,12 +178,13 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Event Details */}
+        {/* Event Information Section */}
         <View style={styles.eventDetails}>
           <Text style={styles.eventTitle} numberOfLines={2}>
             {item.title}
           </Text>
 
+          {/* Event metadata with icons */}
           <View style={styles.eventMeta}>
             <View style={styles.metaRow}>
               <Text style={styles.metaIcon}>📅</Text>
@@ -184,6 +204,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Event footer with price and book button */}
           <View style={styles.eventFooter}>
             <Text style={[styles.eventPrice, item.isFree && styles.freePrice]}>
               {item.price}
@@ -197,7 +218,8 @@ export default function HomeScreen() {
     </Animated.View>
   );
 
-  const renderCategoryChip = ({ item }) => (
+  // Category Filter Chip Renderer
+  const renderCategoryChip = ({ item }: { item: string }) => (
     <TouchableOpacity
       style={[
         styles.categoryChip,
@@ -216,30 +238,35 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
-  const handleEventPress = (event) => {
-    // Navigate to event details screen
+  // Event Press Handler - Navigate to event details
+  const handleEventPress = (event: Event): void => {
     console.log("Event pressed:", event.title);
+    // TODO: Navigate to event details screen
   };
 
-  const handleLogin = () => {
+  // Authentication Handlers
+  const handleLogin = (): void => {
     console.log("Login pressed");
+    // TODO: Navigate to login screen
   };
 
-  const handleExplore = () => {
+  const handleExplore = (): void => {
     console.log("Explore pressed");
+    // TODO: Navigate to explore screen
   };
 
+  // Main Component Render
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1F2937" />
 
-      {/* Header with Background */}
+      {/* Header Section with Search */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.appTitle}>EventApp</Text>
           <Text style={styles.tagline}>Discover & Join Amazing Events</Text>
 
-          {/* Search Bar */}
+          {/* Search Input Bar */}
           <View style={styles.searchContainer}>
             <Text style={styles.searchIcon}>🔍</Text>
             <TextInput
@@ -253,24 +280,25 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Main Content Area with Pull-to-Refresh */}
       <ScrollView
         style={styles.content}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Categories */}
+        {/* Categories Filter Section */}
         <Text style={styles.sectionTitle}>Categories</Text>
         <FlatList
           data={categories}
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={renderCategoryChip}
-          keyExtractor={(item) => item}
+          keyExtractor={(item: string) => item}
           style={styles.categoriesList}
         />
 
-        {/* Events Section */}
+        {/* Events Listing Section */}
         <View style={styles.eventsSection}>
           <Text style={styles.sectionTitle}>
             {selectedCategory === "All"
@@ -281,6 +309,7 @@ export default function HomeScreen() {
             )}
           </Text>
 
+          {/* Conditional Rendering: Loading, Empty, or Events List */}
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <Text style={styles.loadingText}>Loading events...</Text>
@@ -296,7 +325,7 @@ export default function HomeScreen() {
             <FlatList
               data={filteredEvents}
               renderItem={renderEventCard}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item: Event) => item.id}
               showsVerticalScrollIndicator={false}
               scrollEnabled={false}
             />
@@ -304,21 +333,25 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      {/* Floating Action Buttons */}
+      {/* Floating Action Buttons Container */}
       <View style={styles.fabContainer}>
-     
+        {/* FAB buttons can be added here in future */}
       </View>
     </View>
   );
 }
 
+// StyleSheet - All component styles organized by section
 const styles = StyleSheet.create({
+  // Main Container Styles
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
+  
+  // Header Section Styles
   header: {
-    paddingTop: StatusBar.currentHeight + 20,
+    paddingTop: (StatusBar.currentHeight || 0) + 20,
     paddingBottom: 20,
     paddingHorizontal: 20,
     backgroundColor: "#1F2937",
@@ -337,6 +370,8 @@ const styles = StyleSheet.create({
     color: "#D1D5DB",
     marginBottom: 20,
   },
+  
+  // Search Bar Styles
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -355,6 +390,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
   },
+  
+  // Content Area Styles
   content: {
     flex: 1,
     paddingHorizontal: 20,
@@ -371,6 +408,8 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: "#6B7280",
   },
+  
+  // Category Filter Styles
   categoriesList: {
     marginBottom: 10,
   },
@@ -393,8 +432,10 @@ const styles = StyleSheet.create({
   selectedCategoryText: {
     color: "#FFFFFF",
   },
+  
+  // Events Section Styles
   eventsSection: {
-    marginBottom: 100, // Space for FAB
+    marginBottom: 100, // Space for potential FAB
   },
   eventCard: {
     backgroundColor: "#FFFFFF",
@@ -413,6 +454,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 16,
   },
+  
+  // Event Image Styles
   imageContainer: {
     position: "relative",
   },
@@ -449,6 +492,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
+  
+  // Event Details Styles
   eventDetails: {
     padding: 16,
   },
@@ -477,6 +522,8 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     flex: 1,
   },
+  
+  // Event Footer Styles
   eventFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -501,6 +548,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  
+  // Loading and Empty State Styles
   loadingContainer: {
     paddingVertical: 40,
     alignItems: "center",
@@ -523,6 +572,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6B7280",
   },
+  
+  // Floating Action Button Styles
   fabContainer: {
     position: "absolute",
     bottom: 30,
@@ -530,38 +581,5 @@ const styles = StyleSheet.create({
     right: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  fab: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    flex: 0.48,
-    alignItems: "center",
-  },
-  primaryFab: {
-    backgroundColor: "#2563EB",
-  },
-  secondaryFab: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#2563EB",
-  },
-  fabText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  fabTextSecondary: {
-    color: "#2563EB",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });

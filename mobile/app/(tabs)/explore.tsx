@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -10,49 +10,81 @@ import {
   StatusBar,
   Animated,
   RefreshControl,
-} from 'react-native';
+} from "react-native";
+
+// TypeScript interfaces for type safety
+interface Location {
+  id: string;
+  name: string;
+  count: number;
+  emoji: string;
+}
+
+interface TrendingTopic {
+  id: string;
+  name: string;
+  color: string;
+  count: string;
+}
+
+interface Organizer {
+  id: string;
+  name: string;
+  events: number;
+  rating: number;
+  image: string;
+}
 
 export default function ExploreScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [events, setEvents] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
+  // State Management - All component state variables
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedFilter, setSelectedFilter] = useState<string>("All");
+  const [events, setEvents] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [fadeAnim] = useState(new Animated.Value(0));
 
-  // Filter options
-  const filters = ['All', 'Today', 'This Week', 'This Month', 'Free', 'Paid'];
-
-  // Event locations/cities
-  const locations = [
-    { id: '1', name: 'Delhi NCR', count: 25, emoji: '🏛️' },
-    { id: '2', name: 'Mumbai', count: 18, emoji: '🌊' },
-    { id: '3', name: 'Bangalore', count: 32, emoji: '🌿' },
-    { id: '4', name: 'Pune', count: 12, emoji: '🎓' },
-    { id: '5', name: 'Hyderabad', count: 15, emoji: '💎' },
-    { id: '6', name: 'Chennai', count: 10, emoji: '🏖️' },
+  // Filter Configuration - Available filter options
+  const filters: string[] = [
+    "All",
+    "Today",
+    "This Week",
+    "This Month",
+    "Free",
+    "Paid",
   ];
 
-  // Trending topics
-  const trendingTopics = [
-    { id: '1', name: 'AI & ML', color: '#8B5CF6', count: '45 events' },
-    { id: '2', name: 'Startup', color: '#EC4899', count: '32 events' },
-    { id: '3', name: 'Music Festival', color: '#F59E0B', count: '28 events' },
-    { id: '4', name: 'Photography', color: '#10B981', count: '22 events' },
-    { id: '5', name: 'Food & Drink', color: '#EF4444', count: '38 events' },
-    { id: '6', name: 'Fitness', color: '#3B82F6', count: '19 events' },
+  // Location Data - Cities/regions with event counts
+  const locations: Location[] = [
+    { id: "1", name: "Delhi NCR", count: 25, emoji: "🏛️" },
+    { id: "2", name: "Mumbai", count: 18, emoji: "🌊" },
+    { id: "3", name: "Bangalore", count: 32, emoji: "🌿" },
+    { id: "4", name: "Pune", count: 12, emoji: "🎓" },
+    { id: "5", name: "Hyderabad", count: 15, emoji: "💎" },
+    { id: "6", name: "Chennai", count: 10, emoji: "🏖️" },
   ];
 
-  // Featured organizers
-  const organizers = [
-    { id: '1', name: 'TechEvents India', events: 24, rating: 4.8, image: '🏢' },
-    { id: '2', name: 'Music Masters', events: 18, rating: 4.9, image: '🎵' },
-    { id: '3', name: 'Startup Hub', events: 15, rating: 4.7, image: '🚀' },
-    { id: '4', name: 'Art Gallery', events: 12, rating: 4.6, image: '🎨' },
+  // Trending Topics Data - Popular event categories
+  const trendingTopics: TrendingTopic[] = [
+    { id: "1", name: "AI & ML", color: "#8B5CF6", count: "45 events" },
+    { id: "2", name: "Startup", color: "#EC4899", count: "32 events" },
+    { id: "3", name: "Music Festival", color: "#F59E0B", count: "28 events" },
+    { id: "4", name: "Photography", color: "#10B981", count: "22 events" },
+    { id: "5", name: "Food & Drink", color: "#EF4444", count: "38 events" },
+    { id: "6", name: "Fitness", color: "#3B82F6", count: "19 events" },
   ];
 
+  // Featured Organizers Data - Top event organizers
+  const organizers: Organizer[] = [
+    { id: "1", name: "TechEvents India", events: 24, rating: 4.8, image: "🏢" },
+    { id: "2", name: "Music Masters", events: 18, rating: 4.9, image: "🎵" },
+    { id: "3", name: "Startup Hub", events: 15, rating: 4.7, image: "🚀" },
+    { id: "4", name: "Art Gallery", events: 12, rating: 4.6, image: "🎨" },
+  ];
+
+  // Component Lifecycle - Initialize data and animations
   useEffect(() => {
     loadExploreData();
-    // Fade in animation
+    // Smooth fade-in animation on component mount
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 800,
@@ -60,20 +92,23 @@ export default function ExploreScreen() {
     }).start();
   }, []);
 
-  const loadExploreData = async () => {
-    // Simulate API call
+  // Data Loading Function - Simulates API call for explore data
+  const loadExploreData = async (): Promise<void> => {
+    // Simulate network delay
     setTimeout(() => {
-      // Data is already set in state
+      // In real app, fetch data from API here
     }, 500);
   };
 
-  const onRefresh = async () => {
+  // Pull-to-Refresh Handler
+  const onRefresh = async (): Promise<void> => {
     setRefreshing(true);
     await loadExploreData();
     setRefreshing(false);
   };
 
-  const renderLocationCard = ({ item }) => (
+  // Location Card Renderer - Displays city/location with event count
+  const renderLocationCard = ({ item }: { item: Location }) => (
     <TouchableOpacity style={styles.locationCard} activeOpacity={0.7}>
       <Text style={styles.locationEmoji}>{item.emoji}</Text>
       <Text style={styles.locationName}>{item.name}</Text>
@@ -81,9 +116,10 @@ export default function ExploreScreen() {
     </TouchableOpacity>
   );
 
-  const renderTrendingTopic = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.topicCard, { backgroundColor: item.color + '20' }]}
+  // Trending Topic Card Renderer - Shows popular event topics
+  const renderTrendingTopic = ({ item }: { item: TrendingTopic }) => (
+    <TouchableOpacity
+      style={[styles.topicCard, { backgroundColor: item.color + "20" }]}
       activeOpacity={0.7}
     >
       <View style={[styles.topicIcon, { backgroundColor: item.color }]} />
@@ -94,7 +130,8 @@ export default function ExploreScreen() {
     </TouchableOpacity>
   );
 
-  const renderOrganizerCard = ({ item }) => (
+  // Organizer Card Renderer - Featured event organizers list
+  const renderOrganizerCard = ({ item }: { item: Organizer }) => (
     <TouchableOpacity style={styles.organizerCard} activeOpacity={0.7}>
       <Text style={styles.organizerImage}>{item.image}</Text>
       <View style={styles.organizerInfo}>
@@ -109,34 +146,40 @@ export default function ExploreScreen() {
     </TouchableOpacity>
   );
 
-  const renderFilterChip = ({ item }) => (
+  // Filter Chip Renderer - Quick filter buttons
+  const renderFilterChip = ({ item }: { item: string }) => (
     <TouchableOpacity
       style={[
         styles.filterChip,
-        selectedFilter === item && styles.selectedFilterChip
+        selectedFilter === item && styles.selectedFilterChip,
       ]}
       onPress={() => setSelectedFilter(item)}
     >
-      <Text style={[
-        styles.filterText,
-        selectedFilter === item && styles.selectedFilterText
-      ]}>
+      <Text
+        style={[
+          styles.filterText,
+          selectedFilter === item && styles.selectedFilterText,
+        ]}
+      >
         {item}
       </Text>
     </TouchableOpacity>
   );
 
+  // Main Component Render
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1F2937" />
-      
-      {/* Header */}
+
+      {/* Header Section with Search */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Explore Events</Text>
-          <Text style={styles.headerSubtitle}>Find your next amazing experience</Text>
-          
-          {/* Search Bar */}
+          <Text style={styles.headerSubtitle}>
+            Find your next amazing experience
+          </Text>
+
+          {/* Enhanced Search Bar with Filter Button */}
           <View style={styles.searchContainer}>
             <Text style={styles.searchIcon}>🔍</Text>
             <TextInput
@@ -153,6 +196,7 @@ export default function ExploreScreen() {
         </View>
       </View>
 
+      {/* Main Content with ScrollView and Pull-to-Refresh */}
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
@@ -160,7 +204,7 @@ export default function ExploreScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Quick Filters */}
+        {/* Quick Filters Section */}
         <Animated.View style={[styles.section, { opacity: fadeAnim }]}>
           <Text style={styles.sectionTitle}>Quick Filters</Text>
           <FlatList
@@ -168,12 +212,12 @@ export default function ExploreScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={renderFilterChip}
-            keyExtractor={(item) => item}
+            keyExtractor={(item: string) => item}
             style={styles.filtersList}
           />
         </Animated.View>
 
-        {/* Browse by Location */}
+        {/* Browse by Location Section */}
         <Animated.View style={[styles.section, { opacity: fadeAnim }]}>
           <Text style={styles.sectionTitle}>Browse by Location</Text>
           <FlatList
@@ -181,22 +225,27 @@ export default function ExploreScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={renderLocationCard}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: Location) => item.id}
             style={styles.locationsList}
           />
         </Animated.View>
 
-        {/* Trending Topics */}
+        {/* Trending Topics Grid Section */}
         <Animated.View style={[styles.section, { opacity: fadeAnim }]}>
           <Text style={styles.sectionTitle}>Trending Topics</Text>
           <View style={styles.topicsGrid}>
-            {trendingTopics.map((topic, index) => (
-              <TouchableOpacity 
+            {trendingTopics.map((topic: TrendingTopic, index: number) => (
+              <TouchableOpacity
                 key={topic.id}
-                style={[styles.topicCard, { backgroundColor: topic.color + '20' }]}
+                style={[
+                  styles.topicCard,
+                  { backgroundColor: topic.color + "20" },
+                ]}
                 activeOpacity={0.7}
               >
-                <View style={[styles.topicIcon, { backgroundColor: topic.color }]} />
+                <View
+                  style={[styles.topicIcon, { backgroundColor: topic.color }]}
+                />
                 <View style={styles.topicContent}>
                   <Text style={styles.topicName}>{topic.name}</Text>
                   <Text style={styles.topicCount}>{topic.count}</Text>
@@ -206,7 +255,7 @@ export default function ExploreScreen() {
           </View>
         </Animated.View>
 
-        {/* Featured Organizers */}
+        {/* Featured Organizers Section */}
         <Animated.View style={[styles.section, { opacity: fadeAnim }]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Featured Organizers</Text>
@@ -214,8 +263,12 @@ export default function ExploreScreen() {
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
-          {organizers.map((organizer) => (
-            <TouchableOpacity key={organizer.id} style={styles.organizerCard} activeOpacity={0.7}>
+          {organizers.map((organizer: Organizer) => (
+            <TouchableOpacity
+              key={organizer.id}
+              style={styles.organizerCard}
+              activeOpacity={0.7}
+            >
               <Text style={styles.organizerImage}>{organizer.image}</Text>
               <View style={styles.organizerInfo}>
                 <Text style={styles.organizerName}>{organizer.name}</Text>
@@ -230,8 +283,10 @@ export default function ExploreScreen() {
           ))}
         </Animated.View>
 
-        {/* Quick Actions */}
-        <Animated.View style={[styles.section, { opacity: fadeAnim, marginBottom: 100 }]}>
+        {/* Quick Actions Grid Section */}
+        <Animated.View
+          style={[styles.section, { opacity: fadeAnim, marginBottom: 100 }]}
+        >
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionCard}>
@@ -254,48 +309,53 @@ export default function ExploreScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation Placeholder */}
       <View style={styles.bottomNav}>
-        
-
+        {/* Navigation items can be added here */}
       </View>
     </View>
   );
 }
 
+// StyleSheet - Organized by component sections for maintainability
 const styles = StyleSheet.create({
+  // Main Container Styles
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
+
+  // Header Section Styles
   header: {
-    backgroundColor: '#1F2937',
-    paddingTop: StatusBar.currentHeight + 20,
+    backgroundColor: "#1F2937",
+    paddingTop: (StatusBar.currentHeight || 0) + 20,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
   headerContent: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#D1D5DB',
+    color: "#D1D5DB",
     marginBottom: 20,
   },
+
+  // Search Bar Styles
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    width: '100%',
+    width: "100%",
   },
   searchIcon: {
     fontSize: 16,
@@ -303,7 +363,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
   },
   filterButton: {
@@ -312,6 +372,8 @@ const styles = StyleSheet.create({
   filterIcon: {
     fontSize: 16,
   },
+
+  // Content Area Styles
   content: {
     flex: 1,
   },
@@ -321,53 +383,57 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
     marginBottom: 15,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 15,
   },
   seeAllText: {
     fontSize: 14,
-    color: '#2563EB',
-    fontWeight: '600',
+    color: "#2563EB",
+    fontWeight: "600",
   },
+
+  // Filter Chips Styles
   filtersList: {
     marginBottom: 10,
   },
   filterChip: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: "#E5E7EB",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 10,
   },
   selectedFilterChip: {
-    backgroundColor: '#2563EB',
+    backgroundColor: "#2563EB",
   },
   filterText: {
-    color: '#374151',
+    color: "#374151",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   selectedFilterText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
+
+  // Location Cards Styles
   locationsList: {
     marginBottom: 10,
   },
   locationCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 15,
     borderRadius: 12,
     marginRight: 12,
-    alignItems: 'center',
+    alignItems: "center",
     minWidth: 100,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -382,27 +448,29 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   locationCount: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
   },
+
+  // Trending Topics Grid Styles
   topicsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   topicCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 12,
     marginBottom: 10,
-    width: '48%',
+    width: "48%",
   },
   topicIcon: {
     width: 32,
@@ -415,22 +483,24 @@ const styles = StyleSheet.create({
   },
   topicName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 2,
   },
   topicCount: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
   },
+
+  // Organizer Card Styles
   organizerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
     padding: 15,
     borderRadius: 12,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -448,38 +518,40 @@ const styles = StyleSheet.create({
   },
   organizerName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 4,
   },
   organizerStats: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   followButton: {
-    backgroundColor: '#2563EB',
+    backgroundColor: "#2563EB",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
   followButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
+
+  // Quick Actions Grid Styles
   actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   actionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 20,
     borderRadius: 12,
-    alignItems: 'center',
-    width: '48%',
+    alignItems: "center",
+    width: "48%",
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -494,21 +566,23 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
+
+  // Bottom Navigation Styles
   bottomNav: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    shadowColor: '#000',
+    borderTopColor: "#E5E7EB",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: -2,
@@ -516,25 +590,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 10,
-  },
-  navButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  navIcon: {
-    fontSize: 24,
-    marginBottom: 4,
-  },
-  navText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#2563EB',
-  },
-  inactiveIcon: {
-    opacity: 0.5,
-  },
-  inactiveText: {
-    color: '#9CA3AF',
   },
 });
