@@ -1,0 +1,15 @@
+# Node modules
+**/node_modules
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# React Native build folders
+android/app/build
+ios/build
+
+# Misc
+.DS_Store
