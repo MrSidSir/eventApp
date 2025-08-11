@@ -1,86 +1,74 @@
+import React from 'react';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { PlatformPressable } from '@react-navigation/elements';
 import * as Haptics from 'expo-haptics';
 import { Platform, GestureResponderEvent } from 'react-native';
 
 interface EventAppTabProps extends BottomTabBarButtonProps {
-  // Event app specific props
   tabName?: 'events' | 'tickets' | 'schedule' | 'profile' | 'explore' | 'map';
   hasNotification?: boolean;
   isLiveEvent?: boolean;
   trackAnalytics?: boolean;
 }
 
-export function HapticTab({ 
+export function HapticTab({
   tabName,
   hasNotification = false,
   isLiveEvent = false,
   trackAnalytics = true,
-  ...props 
+  ...props
 }: EventAppTabProps) {
   
   const getHapticFeedback = () => {
-    // Different haptic feedback based on tab type and state
     if (isLiveEvent && tabName === 'events') {
-      return Haptics.ImpactFeedbackStyle.Medium; // Stronger feedback for live events
+      return Haptics.ImpactFeedbackStyle.Medium;
     }
-    
     if (hasNotification) {
-      return Haptics.ImpactFeedbackStyle.Light; // Light feedback for notifications
+      return Haptics.ImpactFeedbackStyle.Light;
     }
-    
-    // Default feedback for regular tabs
     return Haptics.ImpactFeedbackStyle.Light;
   };
 
   const handlePressIn = async (ev: GestureResponderEvent) => {
-    // Enhanced haptic feedback for both iOS and Android
-    if (Platform.OS === 'ios') {
+    try {
+      // Base haptic
       await Haptics.impactAsync(getHapticFeedback());
-    } else if (Platform.OS === 'android') {
-      // Add haptic feedback for Android too
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
 
-    // Special haptic pattern for live events
-    if (isLiveEvent && tabName === 'events') {
-      // Double tap haptic for live events
-      setTimeout(async () => {
-        if (Platform.OS === 'ios') {
+      // Special pattern for live events
+      if (isLiveEvent && tabName === 'events') {
+        setTimeout(async () => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-      }, 100);
-    }
+        }, 100);
+      }
 
-    // Track tab analytics for event app
-    if (trackAnalytics && tabName) {
-      console.log('Tab pressed:', {
-        tabName,
-        hasNotification,
-        isLiveEvent,
-        platform: Platform.OS,
-        timestamp: new Date().toISOString()
-      });
-      
-      // You can replace this with your analytics service
-      // analytics.track('tab_pressed', { tabName, hasNotification, isLiveEvent });
-    }
+      // Analytics tracking
+      if (trackAnalytics && tabName) {
+        console.log('Tab pressed:', {
+          tabName,
+          hasNotification,
+          isLiveEvent,
+          platform: Platform.OS,
+          timestamp: new Date().toISOString(),
+        });
+        // Replace with real analytics
+        // analytics.track('tab_pressed', { tabName, hasNotification, isLiveEvent });
+      }
 
-    // Call original onPressIn if provided
-    props.onPressIn?.(ev);
+      props.onPressIn?.(ev);
+    } catch (error) {
+      console.error('Haptic error:', error);
+    }
   };
 
   const handlePress = (ev: GestureResponderEvent) => {
-    // Additional haptic feedback on actual press (not just press in)
-    if (hasNotification) {
-      // Success haptic when clearing notifications
-      if (Platform.OS === 'ios') {
+    try {
+      if (hasNotification) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
+      props.onPress?.(ev);
+    } catch (error) {
+      console.error('Haptic press error:', error);
     }
-
-    // Call original onPress if provided
-    props.onPress?.(ev);
   };
 
   return (
@@ -88,7 +76,6 @@ export function HapticTab({
       {...props}
       onPressIn={handlePressIn}
       onPress={handlePress}
-      // Add slight delay for better haptic timing
       delayPressIn={0}
     />
   );

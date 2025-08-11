@@ -11,6 +11,7 @@ import {
   Animated,
   RefreshControl,
   Alert,
+  Image,
   Modal,
 } from "react-native";
 
@@ -19,6 +20,7 @@ interface Location {
   id: string;
   name: string;
   count: number;
+  imageUrl?: string;
   emoji: string;
   coordinates?: { lat: number; lng: number };
   isActive?: boolean;
@@ -50,13 +52,18 @@ interface Event {
   id: string;
   title: string;
   organizerId: string;
+  organizerName?: string;    // easier display
   locationId: string;
+  locationName?: string;     // easier filtering/display
   date: Date;
   category: string;
   price: number;
   isFree: boolean;
   isLive?: boolean;
   attendees?: number;
+  imageUrl?: string;         // <-- added (image for event)
+  availableTickets?: number; // <-- added
+  isBooked?: boolean;        // <-- added flag
 }
 
 interface FilterOptions {
@@ -184,6 +191,7 @@ export default function ExploreScreen() {
         count: "45 events",
         trending: true,
         growth: 25,
+        imageUrl: "https://in.images.search.yahoo.com/images/view;_ylt=Awrx.xqyHJpoFZUCtSW9HAx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzg3MjY0ODMyZWQzNTcxYjM4N2M4OTUyODNiOGI3NTIxBGdwb3MDNDIEaXQDYmluZw--?back=https%3A%2F%2Fin.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3DAI%2Band%2Bmachine%2Blearing%2Bsummit%2Bimage%2Bpng%2Bdownload%26type%3DE210IN885G0%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D42&w=2560&h=1440&imgurl=www.chatgptbotsai.com%2Fwp-content%2Fuploads%2F2023%2F05%2F16268343_rm373batch5-blogbanner-02-scaled.jpg&rurl=https%3A%2F%2Fwww.chatgptbotsai.com%2Funderstanding-the-basics-of-machine-learning%2F&size=424KB&p=AI+and+machine+learing+summit+image+png+download&oid=87264832ed3571b387c895283b8b7521&fr2=piv-web&fr=mcafee&tt=Understanding+the+Basics+of+Machine+Learning+Online+Course&b=0&ni=21&no=42&ts=&tab=organic&sigr=ZmJt6Th1K0zO&sigb=EAe3cEmGyzOQ&sigi=M7GbXiGgSqF6&sigt=s7VpI1M8Mm65&.crumb=ME6bWAqypfL&fr=mcafee&fr2=piv-web&type=E210IN885G0",
       },
       {
         id: "2",
@@ -192,6 +200,7 @@ export default function ExploreScreen() {
         count: "32 events",
         trending: true,
         growth: 15,
+        imageUrl: "https://www.vhv.rs/dpng/d/520-5208809_startup-icon-hd-png-download.png"
       },
       {
         id: "3",
@@ -199,6 +208,7 @@ export default function ExploreScreen() {
         color: "#F59E0B",
         count: "28 events",
         growth: 10,
+        ImageUrl: "https://www.rocksins.com/wp-content/uploads/2022/11/2022_DownloadFestival_DavidDillon_0287HEADER.jpg"
       },
       {
         id: "4",
@@ -206,6 +216,7 @@ export default function ExploreScreen() {
         color: "#10B981",
         count: "22 events",
         growth: 8,
+        ImageUrl: "https://www.rocksins.com/wp-content/uploads/2022/11/2022_DownloadFestival_DavidDillon_0287HEADER.jpg"
       },
       {
         id: "5",
@@ -213,6 +224,7 @@ export default function ExploreScreen() {
         color: "#EF4444",
         count: "38 events",
         growth: 20,
+        ImageUrl: "https://www.rocksins.com/wp-content/uploads/2022/11/2022_DownloadFestival_DavidDillon_0287HEADER.jpg"
       },
       {
         id: "6",
@@ -220,6 +232,7 @@ export default function ExploreScreen() {
         color: "#3B82F6",
         count: "19 events",
         growth: 5,
+        ImageUrl: "https://www.rocksins.com/wp-content/uploads/2022/11/2022_DownloadFestival_DavidDillon_0287HEADER.jpg"
       },
     ];
     setTrendingTopics(mockTopics);
