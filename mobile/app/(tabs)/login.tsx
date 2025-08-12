@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 
 const API_BASE_URL = "http://192.168.1.16:5000"; // Ensure this is your PC's local IP
+const LOGIN_ENDPOINT = "/api/users/login";       // correct endpoint
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
