@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 
-const API_BASE_URL = "http://192.168.X.X:5000"; // apna actual IP likho
+const API_BASE_URL = "http://192.168.1.16:5000"; // Ensure this is your PC's local IP
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      const res = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,15 +27,16 @@ export default function Login() {
       setLoading(false);
 
       if (res.ok) {
-        Alert.alert("Success", `Welcome ${data.user?.name || ""}`);
-        // yahan navigation logic add kar sakte ho
+        Alert.alert("Success", "Login successful!");
+        // TODO: Save token with AsyncStorage or any state management
+        // Example: await AsyncStorage.setItem('token', data.token);
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
       }
     } catch (err) {
       setLoading(false);
       Alert.alert("Error", "Failed to connect to server");
-      console.error(err);
+      console.error("Login error:", err);
     }
   };
 
@@ -48,6 +49,7 @@ export default function Login() {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none" // Correct for email input
       />
       <TextInput
         style={styles.input}
