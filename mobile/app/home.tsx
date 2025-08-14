@@ -2,77 +2,108 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
+  FlatList,
+  ScrollView,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
 } from "react-native";
-import { API_BASE_URL } from "../constants/config";
+import SearchBar from "@/components/SearchBar";
+import CategoryList from "@/components/CategoryList";
+import EventCard from "@/components/EventCard";
 
-// User ka type define karte hain
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-}
+export default function HomeScreen() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
-export default function Home() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Fetch Events whenever category or search changes
+  useEffect(() => {
+    fetchEvents();
+  }, [selectedCategory, searchQuery]);
 
-  const fetchUsers = async () => {
+  const fetchEvents = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      // Example API URL (replace with your backend)
+      let url = `https://your-api.com/events?category=${selectedCategory}`;
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
       }
-      const data: User[] = await response.json();
-      setUsers(data);
+
+      const response = await fetch(url);
+      const data = await response.json();
+      setEvents(data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007BFF" />
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Users List</Text>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.email}>{item.email}</Text>
-          </View>
-        )}
+    <ScrollView style={styles.container}>
+      <Text style={styles.appTitle}>EventApp</Text>
+      <Text style={styles.subtitle}>Discover & Join Amazing Events</Text>
+
+      {/* Search Bar */}
+      <SearchBar onSearch={(text) => setSearchQuery(text)} />
+
+      {/* Categories */}
+      <CategoryList
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
       />
-    </View>
+
+      {/* All Events */}
+      <Text style={styles.sectionTitle}>All Events</Text>
+
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          color="#6200ee"
+          style={{ marginTop: 20 }}
+        />
+      ) : (
+        <FlatList
+          data={events}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => <EventCard event={item} />}
+          ListEmptyComponent={
+            <Text style={styles.noData}>No events found.</Text>
+          }
+          scrollEnabled={false} // So FlatList works well inside ScrollView
+        />
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 15 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  card: {
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
     padding: 15,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
+  },
+  appTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1a1a1a",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 15,
     marginBottom: 10,
   },
-  name: { fontSize: 18, fontWeight: "bold" },
-  email: { fontSize: 14, color: "#666" },
+  noData: {
+    textAlign: "center",
+    color: "#888",
+    marginTop: 20,
+  },
 });
